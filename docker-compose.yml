@@ -49,8 +49,11 @@ services:
       # Dump inicial de la base del proyecto.
       - ./database/escuela_db_export.sql:/docker-entrypoint-initdb.d/01-escuela_db.sql:ro
       # Script parametrizado para crear la base interna de phpMyAdmin sin exponer claves.
+      # que es el script que crea la base auxiliar de phpMyAdmin sin dejar contraseñas visibles dentro del repositorio
       - ./database/phpmyadmin_setup.sh:/docker-entrypoint-initdb.d/02-phpmyadmin.sh:ro
 
+
+  #también está definido en docker-compose.yml. 
   phpmyadmin:
     # Administrador visual de MySQL disponible en el puerto 8081.
     image: phpmyadmin:5.2-apache
