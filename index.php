@@ -157,10 +157,42 @@ try {
         <div class="app-content">
             <div class="container-fluid">
                 <section id="dashboard" class="mb-4 app-panel-section" data-section-title="Dashboard">
+                    <div class="hero-panel mb-4">
+                        <div class="hero-panel__content">
+                            <span class="hero-panel__eyebrow">Panel principal</span>
+                            <h2 class="hero-panel__title">Controla estudiantes, materias y matriculas desde una sola vista.</h2>
+                            <p class="hero-panel__text">
+                                Este dashboard resume el estado academico actual y te da acceso rapido a los modulos clave del sistema.
+                            </p>
+                            <div class="hero-panel__actions">
+                                <button type="button" class="btn btn-light btn-lg js-section-trigger" data-section="panel-estudiantes">
+                                    <i class="bi bi-people-fill me-2"></i>
+                                    Ir a estudiantes
+                                </button>
+                                <button type="button" class="btn btn-outline-light btn-lg js-section-trigger" data-section="panel-materias">
+                                    <i class="bi bi-journal-bookmark-fill me-2"></i>
+                                    Ir a materias
+                                </button>
+                            </div>
+                        </div>
+                        <div class="hero-panel__side">
+                            <div class="hero-kpi">
+                                <span class="hero-kpi__label">Estado del sistema</span>
+                                <strong class="hero-kpi__value">Operativo</strong>
+                                <span class="hero-kpi__meta">CRUD, matriculas y panel lateral activos</span>
+                            </div>
+                            <div class="hero-kpi hero-kpi--soft">
+                                <span class="hero-kpi__label">Regla academica</span>
+                                <strong class="hero-kpi__value">3 materias</strong>
+                                <span class="hero-kpi__meta">Maximo permitido por estudiante</span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row g-3">
                         <div class="col-md-6 col-xl-3">
-                            <div class="small-box text-bg-primary h-100">
+                            <div class="small-box text-bg-primary h-100 premium-stat premium-stat--primary">
                                 <div class="inner">
+                                    <span class="premium-stat__label">Estudiantes</span>
                                     <h3><?php echo htmlspecialchars((string)$studentCount, ENT_QUOTES, 'UTF-8'); ?></h3>
                                     <p>Estudiantes registrados</p>
                                 </div>
@@ -168,8 +200,9 @@ try {
                             </div>
                         </div>
                         <div class="col-md-6 col-xl-3">
-                            <div class="small-box text-bg-success h-100">
+                            <div class="small-box text-bg-success h-100 premium-stat premium-stat--success">
                                 <div class="inner">
+                                    <span class="premium-stat__label">Materias</span>
                                     <h3><?php echo htmlspecialchars((string)$subjectCount, ENT_QUOTES, 'UTF-8'); ?></h3>
                                     <p>Materias disponibles</p>
                                 </div>
@@ -177,8 +210,9 @@ try {
                             </div>
                         </div>
                         <div class="col-md-6 col-xl-3">
-                            <div class="small-box text-bg-warning h-100">
+                            <div class="small-box text-bg-warning h-100 premium-stat premium-stat--warning">
                                 <div class="inner">
+                                    <span class="premium-stat__label">Matriculas</span>
                                     <h3><?php echo htmlspecialchars((string)$enrollmentCount, ENT_QUOTES, 'UTF-8'); ?></h3>
                                     <p>Matriculas activas</p>
                                 </div>
@@ -186,8 +220,9 @@ try {
                             </div>
                         </div>
                         <div class="col-md-6 col-xl-3">
-                            <div class="small-box text-bg-danger h-100">
+                            <div class="small-box text-bg-danger h-100 premium-stat premium-stat--danger">
                                 <div class="inner">
+                                    <span class="premium-stat__label">Limite</span>
                                     <h3>3</h3>
                                     <p>Maximo de materias por estudiante</p>
                                 </div>
@@ -205,7 +240,7 @@ try {
                                     <h3 class="card-title mb-1 fw-semibold">Panel de estudiantes</h3>
                                     <div class="text-secondary small">Control de registros, busqueda y matricula de materias.</div>
                                 </div>
-                                <button id="openAddModalBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                                <button id="openAddModalBtn" class="btn btn-primary btn-premium" data-bs-toggle="modal" data-bs-target="#addModal">
                                     <i class="bi bi-person-plus-fill me-1"></i>
                                     Anadir estudiante
                                 </button>
@@ -259,7 +294,7 @@ try {
                                     <h3 class="card-title mb-1 fw-semibold">Catalogo de materias</h3>
                                     <div class="text-secondary small">Las matriculas se gestionan desde el panel de estudiantes.</div>
                                 </div>
-                                <button id="openAddSubjectModalBtn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                                <button id="openAddSubjectModalBtn" class="btn btn-success btn-premium" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
                                     <i class="bi bi-journal-plus me-1"></i>
                                     Anadir materia
                                 </button>

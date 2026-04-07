@@ -30,6 +30,22 @@ function setTableMessage(tbody, colspan, message) {
     tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center py-4">${escapeHtml(message)}</td></tr>`;
 }
 
+function setTableEmptyState(tbody, colspan, icon, title, description) {
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="${colspan}" class="py-4">
+                <div class="empty-state">
+                    <div class="empty-state__icon">
+                        <i class="bi ${escapeHtml(icon)}"></i>
+                    </div>
+                    <div class="empty-state__title">${escapeHtml(title)}</div>
+                    <div class="empty-state__text">${escapeHtml(description)}</div>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
 function showToast(message, type = "success") {
     const toast = document.createElement("div");
     toast.className = "toast align-items-center border-0 text-bg-" + type;
@@ -94,6 +110,23 @@ function normalizarCodigo(codigo) {
 
 function formatEnrollmentCount(count) {
     return `${Number(count)}/${MAX_SUBJECTS_PER_STUDENT}`;
+}
+
+function getEnrollmentBadgeClass(count) {
+    const numericCount = Number(count || 0);
+    if (numericCount >= MAX_SUBJECTS_PER_STUDENT) {
+        return "enrollment-badge--limit";
+    }
+    if (numericCount > 0) {
+        return "enrollment-badge--progress";
+    }
+    return "enrollment-badge--empty";
+}
+
+function getStudentInitials(student) {
+    const first = String(student.first_name || "").trim().charAt(0);
+    const last = String(student.last_name || "").trim().charAt(0);
+    return (first + last).toUpperCase() || "ST";
 }
 
 function syncSubjectCheckboxLimit() {
@@ -203,19 +236,42 @@ function renderTablaEstudiantes(datos) {
     studentsCache = datos;
 
     if (!datos.length) {
-        setTableMessage(studentsTbody, 6, "Sin estudiantes");
+        setTableEmptyState(
+            studentsTbody,
+            6,
+            "bi-people",
+            "No hay estudiantes registrados",
+            "Agrega un estudiante para comenzar a gestionar matriculas y seguimiento academico."
+        );
         return;
     }
 
     studentsTbody.innerHTML = datos.map((student) => `
         <tr>
-            <td>${escapeHtml(student.codigo_estudiante || "")}</td>
-            <td>${escapeHtml(student.first_name)}</td>
-            <td>${escapeHtml(student.last_name)}</td>
-            <td>${escapeHtml(student.email)}</td>
-            <td>${formatEnrollmentCount(student.materias_matriculadas || 0)}</td>
+            <td><span class="table-code">${escapeHtml(student.codigo_estudiante || "")}</span></td>
+            <td>
+                <div class="person-cell">
+                    <div class="person-cell__avatar">${escapeHtml(getStudentInitials(student))}</div>
+                    <div>
+                        <div class="person-cell__name">${escapeHtml(student.first_name)}</div>
+                        <div class="person-cell__meta">Registro academico</div>
+                    </div>
+                </div>
+            </td>
+            <td><span class="table-strong">${escapeHtml(student.last_name)}</span></td>
+            <td>
+                <span class="email-pill">
+                    <i class="bi bi-envelope-paper me-1"></i>
+                    ${escapeHtml(student.email)}
+                </span>
+            </td>
+            <td>
+                <span class="enrollment-badge ${getEnrollmentBadgeClass(student.materias_matriculadas)}">
+                    ${formatEnrollmentCount(student.materias_matriculadas || 0)}
+                </span>
+            </td>
             <td class="text-center">
-                <button class="btn btn-sm btn-outline-primary me-1 js-manage-enrollment" data-id="${escapeHtml(student.id)}">
+                <button class="btn btn-sm btn-outline-primary me-1 js-manage-enrollment btn-premium-soft" data-id="${escapeHtml(student.id)}">
                     Matricular
                 </button>
                 <button class="btn btn-sm btn-primary me-1 js-edit-student action-icon-btn" title="Editar" aria-label="Editar" data-id="${escapeHtml(student.id)}">
@@ -233,20 +289,38 @@ function renderTablaMaterias(datos) {
     window.__subjectsLoaded = true;
 
     if (!datos.length) {
-        setTableMessage(subjectsTbody, 4, "Sin materias");
+        setTableEmptyState(
+            subjectsTbody,
+            4,
+            "bi-journal-x",
+            "No hay materias disponibles",
+            "Crea una materia nueva para habilitar matriculas dentro del sistema."
+        );
         return;
     }
 
     subjectsTbody.innerHTML = datos.map((subject) => `
         <tr>
-            <td>${escapeHtml(subject.id)}</td>
+            <td><span class="table-code">#${escapeHtml(subject.id)}</span></td>
             <td>
-                <div class="fw-semibold">${escapeHtml(subject.nombre)}</div>
-                <div class="text-muted small">${escapeHtml(subject.codigo)} · ${escapeHtml(subject.creditos)} creditos</div>
+                <div class="subject-cell">
+                    <div class="subject-cell__icon">
+                        <i class="bi bi-journal-richtext"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold">${escapeHtml(subject.nombre)}</div>
+                        <div class="text-muted small">${escapeHtml(subject.codigo)} · ${escapeHtml(subject.creditos)} creditos</div>
+                    </div>
+                </div>
             </td>
-            <td>${escapeHtml(subject.estudiantes_matriculados || 0)}</td>
+            <td>
+                <span class="subject-count-badge">
+                    <i class="bi bi-people-fill me-1"></i>
+                    ${escapeHtml(subject.estudiantes_matriculados || 0)}
+                </span>
+            </td>
             <td class="text-center">
-                <button class="btn btn-sm btn-outline-danger js-delete-subject" data-id="${escapeHtml(subject.id)}">
+                <button class="btn btn-sm btn-outline-danger js-delete-subject btn-premium-soft-danger" data-id="${escapeHtml(subject.id)}">
                     Eliminar
                 </button>
             </td>
@@ -270,7 +344,13 @@ function abrirModalEliminar(id) {
 
 function renderEnrollmentSubjects(subjects, maxMaterias) {
     if (!subjects.length) {
-        setTableMessage(subjectEnrollmentTbody, 4, "No hay materias disponibles");
+        setTableEmptyState(
+            subjectEnrollmentTbody,
+            4,
+            "bi-journal-text",
+            "No hay materias para matricular",
+            "Primero crea materias en el catalogo para poder asignarlas a los estudiantes."
+        );
         return;
     }
 
@@ -288,8 +368,8 @@ function renderEnrollmentSubjects(subjects, maxMaterias) {
                         ${matriculada ? "checked" : ""}
                     >
                 </td>
-                <td>${escapeHtml(subject.codigo || "")}</td>
-                <td>${escapeHtml(subject.nombre || "")}</td>
+                <td><span class="table-code">${escapeHtml(subject.codigo || "")}</span></td>
+                <td><span class="table-strong">${escapeHtml(subject.nombre || "")}</span></td>
                 <td>${escapeHtml(subject.creditos || 0)}</td>
             </tr>
         `;
@@ -567,6 +647,15 @@ clearButton.addEventListener("click", async () => {
     searchInput.value = "";
     searchTerm = "";
     await cargarEstudiantes();
+});
+
+document.querySelectorAll(".js-section-trigger").forEach((button) => {
+    button.addEventListener("click", () => {
+        const link = document.querySelector(`.js-section-nav[data-section="${button.dataset.section}"]`);
+        if (link) {
+            link.click();
+        }
+    });
 });
 
 if (document.readyState === "loading") {
