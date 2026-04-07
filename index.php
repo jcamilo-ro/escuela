@@ -42,7 +42,7 @@ try {
     <link rel="stylesheet" href="assets/vendor/adminlte/css/adminlte.css">
     <link rel="stylesheet" href="assets/css/app.css?v=20260406-adminlte">
 </head>
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<body class="layout-fixed sidebar-expand-lg sidebar-mini sidebar-collapse bg-body-tertiary">
 <div class="app-wrapper">
     <nav class="app-header navbar navbar-expand bg-body">
         <div class="container-fluid">
@@ -53,16 +53,24 @@ try {
                     </a>
                 </li>
                 <li class="nav-item d-none d-md-block">
-                    <a href="#panel-estudiantes" class="nav-link">Estudiantes</a>
+                    <a href="#dashboard" class="nav-link js-section-nav" data-section="dashboard">Dashboard</a>
                 </li>
                 <li class="nav-item d-none d-md-block">
-                    <a href="#panel-materias" class="nav-link">Materias</a>
+                    <a href="#panel-estudiantes" class="nav-link js-section-nav" data-section="panel-estudiantes">Estudiantes</a>
+                </li>
+                <li class="nav-item d-none d-md-block">
+                    <a href="#panel-materias" class="nav-link js-section-nav" data-section="panel-materias">Materias</a>
                 </li>
             </ul>
 
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item d-none d-md-flex align-items-center me-3">
                     <span class="text-secondary small">Proyecto academico con AdminLTE</span>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link border-0 bg-transparent" id="sidebarPinToggle" title="Fijar menu lateral">
+                        <i class="bi bi-pin-angle" id="sidebarPinIcon"></i>
+                    </button>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#" data-lte-toggle="fullscreen">
@@ -94,19 +102,19 @@ try {
                     data-accordion="false"
                 >
                     <li class="nav-item">
-                        <a href="#dashboard" class="nav-link active">
+                        <a href="#dashboard" class="nav-link active js-section-nav" data-section="dashboard">
                             <i class="nav-icon bi bi-grid-1x2-fill"></i>
                             <p>Dashboard</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#panel-estudiantes" class="nav-link">
+                        <a href="#panel-estudiantes" class="nav-link js-section-nav" data-section="panel-estudiantes">
                             <i class="nav-icon bi bi-people-fill"></i>
                             <p>Estudiantes</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#panel-materias" class="nav-link">
+                        <a href="#panel-materias" class="nav-link js-section-nav" data-section="panel-materias">
                             <i class="nav-icon bi bi-journal-bookmark-fill"></i>
                             <p>Materias</p>
                         </a>
@@ -119,6 +127,12 @@ try {
                     </li>
                 </ul>
             </nav>
+            <div class="sidebar-helper px-3 pb-3">
+                <div class="sidebar-helper-card">
+                    <i class="bi bi-cursor-fill me-2"></i>
+                    <span>Pasa el cursor para expandir el menu o fijalo con el pin superior.</span>
+                </div>
+            </div>
         </div>
     </aside>
 
@@ -133,7 +147,7 @@ try {
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-end mb-0">
                             <li class="breadcrumb-item"><a href="index.php">Inicio</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                            <li class="breadcrumb-item active" aria-current="page" id="currentSectionLabel">Dashboard</li>
                         </ol>
                     </div>
                 </div>
@@ -142,7 +156,7 @@ try {
 
         <div class="app-content">
             <div class="container-fluid">
-                <section id="dashboard" class="mb-4">
+                <section id="dashboard" class="mb-4 app-panel-section" data-section-title="Dashboard">
                     <div class="row g-3">
                         <div class="col-md-6 col-xl-3">
                             <div class="small-box text-bg-primary h-100">
@@ -183,7 +197,7 @@ try {
                     </div>
                 </section>
 
-                <section id="panel-estudiantes" class="mb-4">
+                <section id="panel-estudiantes" class="mb-4 app-panel-section d-none" data-section-title="Estudiantes">
                     <div class="card card-outline card-primary shadow-sm">
                         <div class="card-header border-0">
                             <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -237,7 +251,7 @@ try {
                     </div>
                 </section>
 
-                <section id="panel-materias" class="mb-4">
+                <section id="panel-materias" class="mb-4 app-panel-section d-none" data-section-title="Materias">
                     <div class="card card-outline card-success shadow-sm">
                         <div class="card-header border-0">
                             <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -507,6 +521,14 @@ const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
 document.addEventListener("DOMContentLoaded", () => {
     const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
     const isMobile = window.innerWidth <= 992;
+    const body = document.body;
+    const appSidebar = document.querySelector(".app-sidebar");
+    const pinToggle = document.getElementById("sidebarPinToggle");
+    const pinIcon = document.getElementById("sidebarPinIcon");
+    const sectionLinks = document.querySelectorAll(".js-section-nav[data-section]");
+    const sections = document.querySelectorAll(".app-panel-section");
+    const currentSectionLabel = document.getElementById("currentSectionLabel");
+    let sidebarPinned = false;
 
     if (sidebarWrapper && window.OverlayScrollbarsGlobal?.OverlayScrollbars && !isMobile) {
         window.OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
@@ -517,6 +539,67 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    const setSidebarPinnedState = (pinned) => {
+        sidebarPinned = pinned;
+        pinIcon.className = pinned ? "bi bi-pin-angle-fill" : "bi bi-pin-angle";
+        pinToggle.classList.toggle("text-primary", pinned);
+        if (!isMobile) {
+            body.classList.toggle("sidebar-collapse", !pinned);
+        }
+    };
+
+    if (pinToggle) {
+        pinToggle.addEventListener("click", () => {
+            setSidebarPinnedState(!sidebarPinned);
+        });
+    }
+
+    if (appSidebar && !isMobile) {
+        appSidebar.addEventListener("mouseenter", () => {
+            if (!sidebarPinned) {
+                body.classList.remove("sidebar-collapse");
+            }
+        });
+
+        appSidebar.addEventListener("mouseleave", () => {
+            if (!sidebarPinned) {
+                body.classList.add("sidebar-collapse");
+            }
+        });
+    }
+
+    const activateSection = (sectionId) => {
+        sections.forEach((section) => {
+            section.classList.toggle("d-none", section.id !== sectionId);
+        });
+
+        sectionLinks.forEach((link) => {
+            link.classList.toggle("active", link.dataset.section === sectionId);
+        });
+
+        const currentSection = document.getElementById(sectionId);
+        if (currentSection && currentSectionLabel) {
+            currentSectionLabel.textContent = currentSection.dataset.sectionTitle || "Dashboard";
+        }
+        window.location.hash = sectionId;
+    };
+
+    sectionLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            activateSection(link.dataset.section);
+        });
+    });
+
+    const initialSection = window.location.hash.replace("#", "");
+    if (initialSection && document.getElementById(initialSection)) {
+        activateSection(initialSection);
+    } else {
+        activateSection("dashboard");
+    }
+
+    setSidebarPinnedState(false);
 });
 </script>
 </body>
