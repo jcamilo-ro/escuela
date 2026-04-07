@@ -51,8 +51,13 @@ escuela/
 |       `-- adminlte/
 |           |-- css/
 |           `-- js/
+|-- config/
+|   `-- phpmyadmin/
+|       `-- config.user.inc.php
 |-- database/
-|   `-- materias_setup.sql
+|   |-- escuela_db_export.sql
+|   |-- materias_setup.sql
+|   `-- phpmyadmin_setup.sql
 |-- connectdb.php
 |-- index.php
 |-- README.md
@@ -110,6 +115,8 @@ El proyecto tambien puede ejecutarse sin XAMPP usando Docker Compose.
 - [docker-compose.yml](C:\xampp\htdocs\escuela\docker-compose.yml)
 - [.dockerignore](C:\xampp\htdocs\escuela\.dockerignore)
 - [database/escuela_db_export.sql](C:\xampp\htdocs\escuela\database\escuela_db_export.sql)
+- [database/phpmyadmin_setup.sql](C:\xampp\htdocs\escuela\database\phpmyadmin_setup.sql)
+- [config/phpmyadmin/config.user.inc.php](C:\xampp\htdocs\escuela\config\phpmyadmin\config.user.inc.php)
 
 ### Servicios definidos
 
@@ -168,6 +175,8 @@ docker compose up -d --build
 ### Nota sobre la base actual
 
 La base de datos de XAMPP fue exportada a [database/escuela_db_export.sql](C:\xampp\htdocs\escuela\database\escuela_db_export.sql) para importarse automaticamente la primera vez que el contenedor MySQL se crea.
+
+Ademas, [database/phpmyadmin_setup.sql](C:\xampp\htdocs\escuela\database\phpmyadmin_setup.sql) crea la base interna de `phpMyAdmin` y [config/phpmyadmin/config.user.inc.php](C:\xampp\htdocs\escuela\config\phpmyadmin\config.user.inc.php) activa sus tablas de configuracion para evitar avisos de almacenamiento incompleto.
 
 ## Endpoints principales
 

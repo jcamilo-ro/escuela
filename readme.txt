@@ -63,8 +63,17 @@ Archivos y carpetas principales:
       Archivos locales necesarios de AdminLTE.
 
 - database\
+  - escuela_db_export.sql
+    Exportacion de la base principal para Docker.
   - materias_setup.sql
     Script base para tablas y materias iniciales.
+  - phpmyadmin_setup.sql
+    Script para crear la base interna de configuracion de phpMyAdmin.
+
+- config\
+  - phpmyadmin\
+    - config.user.inc.php
+      Configuracion adicional de phpMyAdmin para sus tablas internas.
 
 ============================================================
 4) FUNCIONALIDADES
@@ -132,6 +141,8 @@ Archivos usados:
 - docker-compose.yml
 - .dockerignore
 - database\escuela_db_export.sql
+- database\phpmyadmin_setup.sql
+- config\phpmyadmin\config.user.inc.php
 
 Servicios:
 - app -> PHP 8.2 + Apache
@@ -158,6 +169,8 @@ Importacion de datos:
 - La base actual fue exportada en
   database\escuela_db_export.sql
 - MySQL la importa automaticamente al crear el volumen por primera vez
+- phpMyAdmin usa una base interna adicional creada con
+  database\phpmyadmin_setup.sql
 
 ============================================================
 8) ENDPOINTS DISPONIBLES
