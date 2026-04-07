@@ -216,7 +216,7 @@ function renderTablaEstudiantes(datos) {
             <td>${formatEnrollmentCount(student.materias_matriculadas || 0)}</td>
             <td class="text-center">
                 <button class="btn btn-sm btn-outline-primary me-1 js-manage-enrollment" data-id="${escapeHtml(student.id)}">
-                    Materias
+                    Matricular
                 </button>
                 <button class="btn btn-sm btn-primary me-1 js-edit-student action-icon-btn" title="Editar" aria-label="Editar" data-id="${escapeHtml(student.id)}">
                     <i class="bi bi-pencil-square"></i>

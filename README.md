@@ -1,6 +1,6 @@
 # Escuela
 
-Aplicacion web en PHP y MySQL para gestionar estudiantes, materias y matriculas desde una interfaz sencilla con Bootstrap.
+Aplicacion web en PHP y MySQL para gestionar estudiantes, materias y matriculas desde una interfaz administrativa construida con AdminLTE y Bootstrap 5.
 
 ## Caracteristicas
 
@@ -10,6 +10,7 @@ Aplicacion web en PHP y MySQL para gestionar estudiantes, materias y matriculas 
 - Limite de 3 materias por estudiante
 - Busqueda de estudiantes por codigo o nombre
 - Interfaz dinamica con `fetch` sin recargar la pagina
+- Dashboard administrativo con sidebar, navbar y metricas
 
 ## Tecnologias
 
@@ -19,6 +20,7 @@ Aplicacion web en PHP y MySQL para gestionar estudiantes, materias y matriculas 
 - JavaScript
 - Bootstrap 5
 - Bootstrap Icons
+- AdminLTE 4
 
 ## Estructura del proyecto
 
@@ -32,6 +34,8 @@ escuela/
 |   |   `-- app.css
 |   `-- js/
 |       `-- app.js
+|   `-- vendor/
+|       `-- adminlte/
 |-- database/
 |   `-- materias_setup.sql
 |-- connectdb.php
@@ -78,6 +82,7 @@ escuela/
 - Cada estudiante puede matricular hasta 3 materias.
 - La seleccion de materias se realiza desde la tabla de estudiantes.
 - La tabla de materias muestra el total de estudiantes matriculados por materia.
+- La interfaz principal usa un layout administrativo basado en AdminLTE.
 
 ## Autor
 

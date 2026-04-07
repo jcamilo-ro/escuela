@@ -4,8 +4,9 @@ Thumbs.db
 .vscode/
 
 # Dependencies
-vendor/
+/vendor/
 node_modules/
+AdminLTE-4.0.0-rc7/
 
 # Environment / secrets
 .env

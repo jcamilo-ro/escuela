@@ -2,11 +2,16 @@
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 header("Expires: 0");
+
 $subjects = [];
 $subjectsError = "";
+$studentCount = 0;
+$subjectCount = 0;
+$enrollmentCount = 0;
 
 try {
     require_once __DIR__ . "/connectdb.php";
+
     $subjectSql = "SELECT sub.id,
                           sub.nombre,
                           sub.codigo,
@@ -17,6 +22,9 @@ try {
                    GROUP BY sub.id, sub.nombre, sub.codigo, sub.creditos
                    ORDER BY sub.id ASC";
     $subjects = $pdo->query($subjectSql)->fetchAll(PDO::FETCH_ASSOC);
+    $studentCount = (int)$pdo->query("SELECT COUNT(*) FROM student")->fetchColumn();
+    $subjectCount = (int)$pdo->query("SELECT COUNT(*) FROM subject")->fetchColumn();
+    $enrollmentCount = (int)$pdo->query("SELECT COUNT(*) FROM student_subject")->fetchColumn();
 } catch (Throwable $e) {
     $subjectsError = "No se pudieron cargar las materias";
 }
@@ -24,119 +32,284 @@ try {
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tabla escuela</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/app.css" rel="stylesheet">
+    <title>Escuela | Panel Academico</title>
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="assets/vendor/adminlte/css/adminlte.css">
+    <link rel="stylesheet" href="assets/css/app.css?v=20260406-adminlte">
 </head>
-<body class="bg-light">
-<main class="container py-4">
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-dark text-white">
-            <h1 class="h4 mb-0">Gestion de estudiantes</h1>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+    <nav class="app-header navbar navbar-expand bg-body">
+        <div class="container-fluid">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                        <i class="bi bi-list"></i>
+                    </a>
+                </li>
+                <li class="nav-item d-none d-md-block">
+                    <a href="#panel-estudiantes" class="nav-link">Estudiantes</a>
+                </li>
+                <li class="nav-item d-none d-md-block">
+                    <a href="#panel-materias" class="nav-link">Materias</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item d-none d-md-flex align-items-center me-3">
+                    <span class="text-secondary small">Proyecto academico con AdminLTE</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-lte-toggle="fullscreen">
+                        <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i>
+                        <i data-lte-icon="minimize" class="bi bi-fullscreen-exit" style="display:none"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <aside class="app-sidebar bg-primary shadow" data-bs-theme="dark">
+        <div class="sidebar-brand">
+            <a href="index.php" class="brand-link">
+                <span class="brand-image adminlte-mark">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </span>
+                <span class="brand-text fw-semibold">Escuela Admin</span>
+            </a>
         </div>
 
-        <div class="card-body">
-            <div class="toolbar mb-3">
-                <button id="openAddModalBtn" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">
-                    Anadir estudiante
-                </button>
-                <div class="search-wrap">
-                    <input
-                        type="text"
-                        id="searchInput"
-                        class="form-control form-control-sm"
-                        placeholder="Buscar por codigo o nombre"
-                    >
-                    <button id="searchButton" class="btn btn-outline-primary btn-sm" type="button">
-                        Buscar
-                    </button>
-                    <button id="clearButton" class="btn btn-outline-secondary btn-sm" type="button">
-                        Limpiar
-                    </button>
+        <div class="sidebar-wrapper">
+            <nav class="mt-2">
+                <ul
+                    class="nav sidebar-menu flex-column"
+                    data-lte-toggle="treeview"
+                    role="navigation"
+                    aria-label="Main navigation"
+                    data-accordion="false"
+                >
+                    <li class="nav-item">
+                        <a href="#dashboard" class="nav-link active">
+                            <i class="nav-icon bi bi-grid-1x2-fill"></i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#panel-estudiantes" class="nav-link">
+                            <i class="nav-icon bi bi-people-fill"></i>
+                            <p>Estudiantes</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#panel-materias" class="nav-link">
+                            <i class="nav-icon bi bi-journal-bookmark-fill"></i>
+                            <p>Materias</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="https://github.com/jcamilo-ro/escuela" class="nav-link" target="_blank" rel="noreferrer">
+                            <i class="nav-icon bi bi-github"></i>
+                            <p>Repositorio</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <main class="app-main">
+        <div class="app-content-header">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-sm-6">
+                        <h1 class="mb-0">Gestion academica</h1>
+                        <p class="text-secondary mb-0">Administra estudiantes, materias y matriculas desde un solo panel.</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-end mb-0">
+                            <li class="breadcrumb-item"><a href="index.php">Inicio</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
-
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Codigo estudiante</th>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Email</th>
-                            <th>Materias matriculadas</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="studentsTbody">
-                        <tr>
-                            <td colspan="6" class="text-center py-4">Cargando...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white">
-            <h2 class="h4 mb-0">Materias de Ingenieria de Sistemas</h2>
         </div>
 
-        <div class="card-body">
-            <div class="toolbar mb-3">
-                <button id="openAddSubjectModalBtn" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
-                    Anadir materia
-                </button>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Materia</th>
-                            <th>Estudiantes matriculados</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="subjectsTbody">
-                        <?php if ($subjectsError !== ""): ?>
-                            <tr>
-                                <td colspan="4" class="text-center py-4"><?php echo htmlspecialchars($subjectsError, ENT_QUOTES, 'UTF-8'); ?></td>
-                            </tr>
-                        <?php elseif (!$subjects): ?>
-                            <tr>
-                                <td colspan="4" class="text-center py-4">Sin materias</td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($subjects as $subject): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars((string)$subject["id"], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td>
-                                        <div class="fw-semibold"><?php echo htmlspecialchars($subject["nombre"], ENT_QUOTES, 'UTF-8'); ?></div>
-                                        <div class="text-muted small">
-                                            <?php echo htmlspecialchars($subject["codigo"], ENT_QUOTES, 'UTF-8'); ?> ·
-                                            <?php echo htmlspecialchars((string)$subject["creditos"], ENT_QUOTES, 'UTF-8'); ?> creditos
-                                        </div>
-                                    </td>
-                                    <td><?php echo htmlspecialchars((string)$subject["estudiantes_matriculados"], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-danger js-delete-subject" data-id="<?php echo htmlspecialchars((string)$subject["id"], ENT_QUOTES, 'UTF-8'); ?>">
-                                            Eliminar
-                                        </button>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+        <div class="app-content">
+            <div class="container-fluid">
+                <section id="dashboard" class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-xl-3">
+                            <div class="small-box text-bg-primary h-100">
+                                <div class="inner">
+                                    <h3><?php echo htmlspecialchars((string)$studentCount, ENT_QUOTES, 'UTF-8'); ?></h3>
+                                    <p>Estudiantes registrados</p>
+                                </div>
+                                <i class="small-box-icon bi bi-people-fill"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="small-box text-bg-success h-100">
+                                <div class="inner">
+                                    <h3><?php echo htmlspecialchars((string)$subjectCount, ENT_QUOTES, 'UTF-8'); ?></h3>
+                                    <p>Materias disponibles</p>
+                                </div>
+                                <i class="small-box-icon bi bi-journal-bookmark-fill"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="small-box text-bg-warning h-100">
+                                <div class="inner">
+                                    <h3><?php echo htmlspecialchars((string)$enrollmentCount, ENT_QUOTES, 'UTF-8'); ?></h3>
+                                    <p>Matriculas activas</p>
+                                </div>
+                                <i class="small-box-icon bi bi-clipboard2-check-fill"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="small-box text-bg-danger h-100">
+                                <div class="inner">
+                                    <h3>3</h3>
+                                    <p>Maximo de materias por estudiante</p>
+                                </div>
+                                <i class="small-box-icon bi bi-exclamation-diamond-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="panel-estudiantes" class="mb-4">
+                    <div class="card card-outline card-primary shadow-sm">
+                        <div class="card-header border-0">
+                            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                                <div>
+                                    <h3 class="card-title mb-1 fw-semibold">Panel de estudiantes</h3>
+                                    <div class="text-secondary small">Control de registros, busqueda y matricula de materias.</div>
+                                </div>
+                                <button id="openAddModalBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                                    <i class="bi bi-person-plus-fill me-1"></i>
+                                    Anadir estudiante
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <div class="toolbar mb-3">
+                                <div class="search-wrap w-100">
+                                    <div class="input-group input-group-lg search-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input
+                                            type="text"
+                                            id="searchInput"
+                                            class="form-control"
+                                            placeholder="Buscar por codigo, nombre o apellido"
+                                        >
+                                        <button id="searchButton" class="btn btn-primary" type="button">Buscar</button>
+                                        <button id="clearButton" class="btn btn-outline-secondary" type="button">Limpiar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0 app-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Codigo estudiante</th>
+                                            <th>Nombre</th>
+                                            <th>Apellido</th>
+                                            <th>Email</th>
+                                            <th>Materias matriculadas</th>
+                                            <th class="text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="studentsTbody">
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">Cargando...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="panel-materias" class="mb-4">
+                    <div class="card card-outline card-success shadow-sm">
+                        <div class="card-header border-0">
+                            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                                <div>
+                                    <h3 class="card-title mb-1 fw-semibold">Catalogo de materias</h3>
+                                    <div class="text-secondary small">Las matriculas se gestionan desde el panel de estudiantes.</div>
+                                </div>
+                                <button id="openAddSubjectModalBtn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                                    <i class="bi bi-journal-plus me-1"></i>
+                                    Anadir materia
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0 app-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Materia</th>
+                                            <th>Estudiantes matriculados</th>
+                                            <th class="text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="subjectsTbody">
+                                        <?php if ($subjectsError !== ""): ?>
+                                            <tr>
+                                                <td colspan="4" class="text-center py-4"><?php echo htmlspecialchars($subjectsError, ENT_QUOTES, 'UTF-8'); ?></td>
+                                            </tr>
+                                        <?php elseif (!$subjects): ?>
+                                            <tr>
+                                                <td colspan="4" class="text-center py-4">Sin materias</td>
+                                            </tr>
+                                        <?php else: ?>
+                                            <?php foreach ($subjects as $subject): ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars((string)$subject["id"], ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td>
+                                                        <div class="fw-semibold"><?php echo htmlspecialchars($subject["nombre"], ENT_QUOTES, 'UTF-8'); ?></div>
+                                                        <div class="text-secondary small">
+                                                            <?php echo htmlspecialchars($subject["codigo"], ENT_QUOTES, 'UTF-8'); ?> ·
+                                                            <?php echo htmlspecialchars((string)$subject["creditos"], ENT_QUOTES, 'UTF-8'); ?> creditos
+                                                        </div>
+                                                    </td>
+                                                    <td><?php echo htmlspecialchars((string)$subject["estudiantes_matriculados"], ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="text-center">
+                                                        <button class="btn btn-sm btn-outline-danger js-delete-subject" data-id="<?php echo htmlspecialchars((string)$subject["id"], ENT_QUOTES, 'UTF-8'); ?>">
+                                                            Eliminar
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
-    </div>
-</main>
+    </main>
+
+    <footer class="app-footer">
+        <strong>
+            Sistema academico Escuela &copy; 2026
+        </strong>
+        <div class="float-end d-none d-sm-inline">
+            Basado en AdminLTE 4 y Bootstrap 5
+        </div>
+    </footer>
+</div>
 
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -149,15 +322,7 @@ try {
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label" for="addStudentCode">Codigo estudiante</label>
-                        <input
-                            class="form-control"
-                            id="addStudentCode"
-                            name="codigo_estudiante"
-                            placeholder="Ej: 26123"
-                            pattern="26[0-9]{3}"
-                            maxlength="5"
-                            required
-                        >
+                        <input class="form-control" id="addStudentCode" name="codigo_estudiante" placeholder="Ej: 26123" pattern="26[0-9]{3}" maxlength="5" required>
                         <div class="form-text">Se genera automaticamente, pero lo puedes editar.</div>
                     </div>
                     <div class="mb-3">
@@ -175,7 +340,7 @@ try {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Guardar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </form>
         </div>
@@ -194,15 +359,7 @@ try {
                     <input type="hidden" id="editId" name="id">
                     <div class="mb-3">
                         <label class="form-label" for="editStudentCode">Codigo estudiante</label>
-                        <input
-                            class="form-control"
-                            id="editStudentCode"
-                            name="codigo_estudiante"
-                            placeholder="Ej: 26123"
-                            pattern="26[0-9]{3}"
-                            maxlength="5"
-                            required
-                        >
+                        <input class="form-control" id="editStudentCode" name="codigo_estudiante" placeholder="Ej: 26123" pattern="26[0-9]{3}" maxlength="5" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="editFirstName">Nombre</label>
@@ -303,7 +460,7 @@ try {
                 <div class="modal-header">
                     <div>
                         <h5 class="modal-title mb-1">Matricular materias</h5>
-                        <div class="text-muted small" id="subjectEnrollmentLabel">Selecciona hasta 3 materias para el estudiante</div>
+                        <div class="text-secondary small" id="subjectEnrollmentLabel">Selecciona hasta 3 materias para el estudiante</div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
@@ -341,44 +498,26 @@ try {
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/app.js?v=20260406-2124"></script>
+<script src="assets/vendor/adminlte/js/adminlte.js"></script>
+<script src="assets/js/app.js?v=20260406-adminlte"></script>
 <script>
-window.setTimeout(async () => {
-    const tbody = document.getElementById("subjectsTbody");
-    if (!tbody || window.__subjectsLoaded) {
-        return;
+const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
+    const isMobile = window.innerWidth <= 992;
+
+    if (sidebarWrapper && window.OverlayScrollbarsGlobal?.OverlayScrollbars && !isMobile) {
+        window.OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+            scrollbars: {
+                theme: "os-theme-light",
+                autoHide: "leave",
+                clickScroll: true
+            }
+        });
     }
-
-    try {
-        const response = await fetch("api/subject.php?action=listar");
-        const data = await response.json();
-
-        if (!data.success || !Array.isArray(data.datos)) {
-            throw new Error(data.message || "No se pudieron cargar las materias");
-        }
-
-        tbody.innerHTML = data.datos.map((subject) => `
-            <tr>
-                <td>${String(subject.id)}</td>
-                <td>
-                    <div class="fw-semibold">${String(subject.nombre)}</div>
-                    <div class="text-muted small">${String(subject.codigo)} · ${String(subject.creditos)} creditos</div>
-                </td>
-                <td>${String(subject.estudiantes_matriculados || 0)}</td>
-                <td class="text-center">
-                    <button class="btn btn-sm btn-outline-danger js-delete-subject" data-id="${String(subject.id)}">
-                        Eliminar
-                    </button>
-                </td>
-            </tr>
-        `).join("");
-
-        window.__subjectsLoaded = true;
-    } catch (error) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">No se pudieron cargar las materias</td></tr>';
-    }
-}, 1200);
+});
 </script>
 </body>
 </html>
