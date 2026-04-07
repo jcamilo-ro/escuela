@@ -1,18 +1,31 @@
 # Escuela
 
-Aplicacion web en PHP y MySQL para gestionar estudiantes, materias y matriculas desde una interfaz administrativa construida con AdminLTE y Bootstrap 5.
+Panel academico desarrollado con PHP, MySQL, JavaScript y AdminLTE para gestionar estudiantes, materias y matriculas desde una interfaz administrativa moderna.
 
-## Caracteristicas
+## Vista general
 
-- CRUD de estudiantes
-- CRUD basico de materias
-- Matricula de materias por estudiante
-- Limite de 3 materias por estudiante
-- Busqueda de estudiantes por codigo o nombre
-- Interfaz dinamica con `fetch` sin recargar la pagina
-- Dashboard administrativo con sidebar, navbar y metricas
+Este proyecto centraliza en una sola pantalla:
 
-## Tecnologias
+- registro, edicion y eliminacion de estudiantes
+- creacion y eliminacion de materias
+- matricula de materias por estudiante
+- control de maximo 3 materias por estudiante
+- visualizacion rapida de metricas academicas
+
+La aplicacion esta pensada para ejecutarse en un entorno local con XAMPP y base de datos MySQL.
+
+## Caracteristicas principales
+
+- interfaz administrativa basada en AdminLTE 4
+- sidebar lateral, barra superior y tarjetas de resumen
+- CRUD dinamico con `fetch` y respuestas JSON
+- buscador de estudiantes por codigo, nombre o apellido
+- generacion automatica de codigo de estudiante
+- validaciones en frontend y backend
+- matricula de materias desde el modulo de estudiantes
+- estructura simple para uso academico y mantenimiento facil
+
+## Tecnologias utilizadas
 
 - PHP
 - MySQL
@@ -32,10 +45,12 @@ escuela/
 |-- assets/
 |   |-- css/
 |   |   `-- app.css
-|   `-- js/
-|       `-- app.js
+|   |-- js/
+|   |   `-- app.js
 |   `-- vendor/
 |       `-- adminlte/
+|           |-- css/
+|           `-- js/
 |-- database/
 |   `-- materias_setup.sql
 |-- connectdb.php
@@ -44,24 +59,49 @@ escuela/
 `-- readme.txt
 ```
 
+## Modulos del sistema
+
+### Estudiantes
+
+- listar estudiantes
+- buscar por texto
+- crear nuevos registros
+- editar informacion existente
+- eliminar estudiantes
+- matricular materias desde un modal
+
+### Materias
+
+- listar materias disponibles
+- crear nuevas materias
+- eliminar materias
+- mostrar cuantos estudiantes tiene matriculados cada curso
+
+### Matriculas
+
+- cada estudiante puede seleccionar hasta 3 materias
+- la matricula se administra desde el boton `Matricular` en la tabla de estudiantes
+- el sistema valida el limite tambien desde el backend
+
 ## Requisitos
 
-- XAMPP o un entorno local con Apache y MySQL
-- PHP 8 o compatible con PDO
-- Base de datos MySQL disponible
+- XAMPP o equivalente con Apache y MySQL
+- PHP con soporte PDO
+- MySQL activo
+- navegador web moderno
 
-## Configuracion local
+## Instalacion local
 
-1. Copia el proyecto dentro de `C:\xampp\htdocs\escuela`.
+1. Clona o copia el proyecto en `C:\xampp\htdocs\escuela`.
 2. Inicia `Apache` y `MySQL` desde XAMPP.
 3. Crea la base de datos `escuela_db`.
-4. Revisa las credenciales en [connectdb.php](C:\xampp\htdocs\escuela\connectdb.php).
-5. Ejecuta el script [database/materias_setup.sql](C:\xampp\htdocs\escuela\database\materias_setup.sql) para crear las tablas y materias base.
-6. Abre la aplicacion en [http://localhost/escuela/](http://localhost/escuela/).
+4. Verifica las credenciales en [connectdb.php](C:\xampp\htdocs\escuela\connectdb.php).
+5. Ejecuta el script [database/materias_setup.sql](C:\xampp\htdocs\escuela\database\materias_setup.sql).
+6. Abre [http://localhost/escuela/](http://localhost/escuela/).
 
 ## Endpoints principales
 
-### Estudiantes
+### API de estudiantes
 
 - `GET api/student.php?action=listar`
 - `GET api/student.php?action=siguiente_codigo`
@@ -71,18 +111,32 @@ escuela/
 - `POST api/student.php` con `action=eliminar`
 - `POST api/student.php` con `action=guardar_matriculas`
 
-### Materias
+### API de materias
 
 - `GET api/subject.php?action=listar`
 - `POST api/subject.php` con `action=crear`
 - `POST api/subject.php` con `action=eliminar`
 
-## Flujo de matricula
+## Git y flujo de trabajo
 
-- Cada estudiante puede matricular hasta 3 materias.
-- La seleccion de materias se realiza desde la tabla de estudiantes.
-- La tabla de materias muestra el total de estudiantes matriculados por materia.
-- La interfaz principal usa un layout administrativo basado en AdminLTE.
+Desde este punto el repositorio sigue estas reglas:
+
+- los commits se escriben en espanol
+- los mensajes deben ser claros, concretos y profesionales
+- primero se implementa, luego se valida y por ultimo se hace commit y push
+
+Ejemplos de estilo recomendado:
+
+- `caracteristica: integrar panel academico con AdminLTE`
+- `ajuste: mejorar documentacion y estructura del proyecto`
+- `correccion: validar limite de materias por estudiante`
+
+## Estado actual del proyecto
+
+- interfaz migrada a AdminLTE
+- assets necesarios de AdminLTE integrados localmente
+- repositorio configurado con `.gitignore`
+- documentacion principal actualizada
 
 ## Autor
 
