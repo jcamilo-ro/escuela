@@ -136,15 +136,23 @@ Archivos usados:
 Servicios:
 - app -> PHP 8.2 + Apache
 - db  -> MySQL 8.0
+- phpmyadmin -> Administrador visual de MySQL en navegador
 
 Puertos:
 - Aplicacion Docker: http://localhost:8080
 - MySQL Docker: 3307
+- phpMyAdmin Docker: http://localhost:8081
 
 Comandos principales:
 - docker compose up -d --build
 - docker compose down
 - docker compose down -v
+
+Acceso a phpMyAdmin Docker:
+- URL: http://localhost:8081
+- servidor: db
+- usuario: root
+- contrasena: root123456
 
 Importacion de datos:
 - La base actual fue exportada en

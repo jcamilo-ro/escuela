@@ -117,11 +117,14 @@ El proyecto tambien puede ejecutarse sin XAMPP usando Docker Compose.
   Contenedor con PHP 8.2 y Apache.
 - `db`
   Contenedor MySQL 8.0 con la base `escuela_db`.
+- `phpmyadmin`
+  Contenedor para administrar visualmente la base de datos desde el navegador.
 
 ### Puertos usados
 
 - Aplicacion web: `http://localhost:8080`
 - MySQL Docker: `localhost:3307`
+- phpMyAdmin Docker: `http://localhost:8081`
 
 ### Levantar el proyecto
 
@@ -136,6 +139,16 @@ docker compose up -d --build
 4. Abre:
 
 [http://localhost:8080](http://localhost:8080)
+
+5. Para administrar la base desde Docker, abre:
+
+[http://localhost:8081](http://localhost:8081)
+
+6. Usa estas credenciales en phpMyAdmin:
+
+- servidor: `db`
+- usuario: `root`
+- contrasena: `root123456`
 
 ### Detener los contenedores
 

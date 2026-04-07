@@ -37,5 +37,20 @@ services:
       - db_data:/var/lib/mysql
       - ./database/escuela_db_export.sql:/docker-entrypoint-initdb.d/01-escuela_db.sql:ro
 
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    container_name: escuela_phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root123456
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   db_data:
