@@ -36,30 +36,6 @@ body {
     font-size: 1.1rem;
 }
 
-.sidebar-helper {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-}
-
-.sidebar-helper-card {
-    display: flex;
-    align-items: center;
-    font-size: 0.82rem;
-    line-height: 1.35;
-    color: rgba(255, 255, 255, 0.92);
-    padding: 0.85rem 0.95rem;
-    border-radius: 0.9rem;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.sidebar-mini.sidebar-collapse .sidebar-helper {
-    opacity: 0;
-    pointer-events: none;
-}
-
 .app-content-header {
     padding-bottom: 0.5rem;
 }
@@ -436,10 +412,6 @@ body {
     .app-content-header .breadcrumb {
         float: none !important;
         margin-top: 0.75rem;
-    }
-
-    .sidebar-helper {
-        display: none;
     }
 }
 

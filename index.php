@@ -52,25 +52,11 @@ try {
                         <i class="bi bi-list"></i>
                     </a>
                 </li>
-                <li class="nav-item d-none d-md-block">
-                    <a href="#dashboard" class="nav-link js-section-nav" data-section="dashboard">Dashboard</a>
-                </li>
-                <li class="nav-item d-none d-md-block">
-                    <a href="#panel-estudiantes" class="nav-link js-section-nav" data-section="panel-estudiantes">Estudiantes</a>
-                </li>
-                <li class="nav-item d-none d-md-block">
-                    <a href="#panel-materias" class="nav-link js-section-nav" data-section="panel-materias">Materias</a>
-                </li>
             </ul>
 
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item d-none d-md-flex align-items-center me-3">
                     <span class="text-secondary small">Proyecto academico con AdminLTE</span>
-                </li>
-                <li class="nav-item">
-                    <button type="button" class="nav-link border-0 bg-transparent" id="sidebarPinToggle" title="Fijar menu lateral">
-                        <i class="bi bi-pin-angle" id="sidebarPinIcon"></i>
-                    </button>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#" data-lte-toggle="fullscreen">
@@ -127,12 +113,6 @@ try {
                     </li>
                 </ul>
             </nav>
-            <div class="sidebar-helper px-3 pb-3">
-                <div class="sidebar-helper-card">
-                    <i class="bi bi-cursor-fill me-2"></i>
-                    <span>Pasa el cursor para expandir el menu o fijalo con el pin superior.</span>
-                </div>
-            </div>
         </div>
     </aside>
 
@@ -558,12 +538,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const isMobile = window.innerWidth <= 992;
     const body = document.body;
     const appSidebar = document.querySelector(".app-sidebar");
-    const pinToggle = document.getElementById("sidebarPinToggle");
-    const pinIcon = document.getElementById("sidebarPinIcon");
     const sectionLinks = document.querySelectorAll(".js-section-nav[data-section]");
     const sections = document.querySelectorAll(".app-panel-section");
     const currentSectionLabel = document.getElementById("currentSectionLabel");
-    let sidebarPinned = false;
 
     if (sidebarWrapper && window.OverlayScrollbarsGlobal?.OverlayScrollbars && !isMobile) {
         window.OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
@@ -571,35 +548,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 theme: "os-theme-light",
                 autoHide: "leave",
                 clickScroll: true
-            }
-        });
-    }
-
-    const setSidebarPinnedState = (pinned) => {
-        sidebarPinned = pinned;
-        pinIcon.className = pinned ? "bi bi-pin-angle-fill" : "bi bi-pin-angle";
-        pinToggle.classList.toggle("text-primary", pinned);
-        if (!isMobile) {
-            body.classList.toggle("sidebar-collapse", !pinned);
-        }
-    };
-
-    if (pinToggle) {
-        pinToggle.addEventListener("click", () => {
-            setSidebarPinnedState(!sidebarPinned);
-        });
-    }
-
-    if (appSidebar && !isMobile) {
-        appSidebar.addEventListener("mouseenter", () => {
-            if (!sidebarPinned) {
-                body.classList.remove("sidebar-collapse");
-            }
-        });
-
-        appSidebar.addEventListener("mouseleave", () => {
-            if (!sidebarPinned) {
-                body.classList.add("sidebar-collapse");
             }
         });
     }
@@ -634,7 +582,9 @@ document.addEventListener("DOMContentLoaded", () => {
         activateSection("dashboard");
     }
 
-    setSidebarPinnedState(false);
+    if (!isMobile) {
+        body.classList.remove("sidebar-collapse");
+    }
 });
 </script>
 </body>
