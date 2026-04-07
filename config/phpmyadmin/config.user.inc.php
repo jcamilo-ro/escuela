@@ -6,11 +6,15 @@ declare(strict_types=1);
 // y otras preferencias sin mezclar esa informacion con escuela_db.
 $serverIndex = 1;
 
+$controlDb = getenv('PMA_CONTROL_DB') ?: 'phpmyadmin';
+$controlUser = getenv('PMA_CONTROL_USER') ?: '';
+$controlPassword = getenv('PMA_CONTROL_PASSWORD') ?: '';
+
 $cfg['Servers'][$serverIndex]['controlhost'] = 'db';
 $cfg['Servers'][$serverIndex]['controlport'] = '3306';
-$cfg['Servers'][$serverIndex]['controluser'] = 'pma';
-$cfg['Servers'][$serverIndex]['controlpass'] = 'pma123456';
-$cfg['Servers'][$serverIndex]['pmadb'] = 'phpmyadmin';
+$cfg['Servers'][$serverIndex]['controluser'] = $controlUser;
+$cfg['Servers'][$serverIndex]['controlpass'] = $controlPassword;
+$cfg['Servers'][$serverIndex]['pmadb'] = $controlDb;
 $cfg['Servers'][$serverIndex]['bookmarktable'] = 'pma__bookmark';
 $cfg['Servers'][$serverIndex]['relation'] = 'pma__relation';
 $cfg['Servers'][$serverIndex]['table_info'] = 'pma__table_info';

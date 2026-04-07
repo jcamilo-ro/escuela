@@ -11,9 +11,11 @@ AdminLTE-4.0.0-rc7/
 # Environment / secrets
 .env
 .env.*
+!.env.example
 
 # Logs
 *.log
 
 # Guias temporales de apoyo personal
 GUIA_EXPOSICION.md
+GUIA_DOCKER.md

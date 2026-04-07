@@ -57,8 +57,9 @@ escuela/
 |-- database/
 |   |-- escuela_db_export.sql
 |   |-- materias_setup.sql
-|   `-- phpmyadmin_setup.sql
+|   `-- phpmyadmin_setup.sh
 |-- connectdb.php
+|-- .env.example
 |-- index.php
 |-- README.md
 `-- readme.txt
@@ -114,9 +115,16 @@ El proyecto tambien puede ejecutarse sin XAMPP usando Docker Compose.
 - [Dockerfile](C:\xampp\htdocs\escuela\Dockerfile)
 - [docker-compose.yml](C:\xampp\htdocs\escuela\docker-compose.yml)
 - [.dockerignore](C:\xampp\htdocs\escuela\.dockerignore)
+- [.env.example](C:\xampp\htdocs\escuela\.env.example)
 - [database/escuela_db_export.sql](C:\xampp\htdocs\escuela\database\escuela_db_export.sql)
-- [database/phpmyadmin_setup.sql](C:\xampp\htdocs\escuela\database\phpmyadmin_setup.sql)
+- [database/phpmyadmin_setup.sh](C:\xampp\htdocs\escuela\database\phpmyadmin_setup.sh)
 - [config/phpmyadmin/config.user.inc.php](C:\xampp\htdocs\escuela\config\phpmyadmin\config.user.inc.php)
+
+### Seguridad de credenciales
+
+- El archivo real `.env` no se sube a GitHub.
+- El repositorio solo publica `.env.example` como guia.
+- Antes de ejecutar el proyecto, copia `.env.example` como `.env` y completa tus valores.
 
 ### Servicios definidos
 
@@ -136,26 +144,27 @@ El proyecto tambien puede ejecutarse sin XAMPP usando Docker Compose.
 ### Levantar el proyecto
 
 1. Abre una terminal en `C:\xampp\htdocs\escuela`.
-2. Ejecuta:
+2. Crea tu archivo `.env` a partir de [\.env.example](C:\xampp\htdocs\escuela\.env.example).
+3. Ejecuta:
 
 ```powershell
 docker compose up -d --build
 ```
 
-3. Espera a que los servicios terminen de iniciar.
-4. Abre:
+4. Espera a que los servicios terminen de iniciar.
+5. Abre:
 
 [http://localhost:8080](http://localhost:8080)
 
-5. Para administrar la base desde Docker, abre:
+6. Para administrar la base desde Docker, abre:
 
 [http://localhost:8081](http://localhost:8081)
 
-6. Usa estas credenciales en phpMyAdmin:
+7. Usa las credenciales definidas en tu `.env` para phpMyAdmin:
 
 - servidor: `db`
-- usuario: `root`
-- contrasena: `root123456`
+- usuario: valor de `PMA_WEB_USER`
+- contrasena: valor de `PMA_WEB_PASSWORD`
 
 ### Detener los contenedores
 
@@ -176,7 +185,7 @@ docker compose up -d --build
 
 La base de datos de XAMPP fue exportada a [database/escuela_db_export.sql](C:\xampp\htdocs\escuela\database\escuela_db_export.sql) para importarse automaticamente la primera vez que el contenedor MySQL se crea.
 
-Ademas, [database/phpmyadmin_setup.sql](C:\xampp\htdocs\escuela\database\phpmyadmin_setup.sql) crea la base interna de `phpMyAdmin` y [config/phpmyadmin/config.user.inc.php](C:\xampp\htdocs\escuela\config\phpmyadmin\config.user.inc.php) activa sus tablas de configuracion para evitar avisos de almacenamiento incompleto.
+Ademas, [database/phpmyadmin_setup.sh](C:\xampp\htdocs\escuela\database\phpmyadmin_setup.sh) crea la base interna de `phpMyAdmin` usando variables del `.env`, y [config/phpmyadmin/config.user.inc.php](C:\xampp\htdocs\escuela\config\phpmyadmin\config.user.inc.php) activa sus tablas de configuracion sin dejar claves visibles en el repositorio.
 
 ## Endpoints principales
 

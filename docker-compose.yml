@@ -4,15 +4,17 @@ services:
     build:
       context: .
     container_name: escuela_app
+    env_file:
+      - .env
     ports:
-      - "8080:80"
+      - "${APP_PORT:-8080}:80"
     environment:
       # Estas variables alimentan connectdb.php para apuntar al MySQL de Docker.
       DB_HOST: db
       DB_PORT: 3306
-      DB_NAME: escuela_db
-      DB_USER: escuela_user
-      DB_PASS: 123456
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
     volumes:
       # Se monta el proyecto local para ver cambios en caliente desde VS Code.
       - ./:/var/www/html
@@ -25,17 +27,19 @@ services:
     image: mysql:8.0
     container_name: escuela_db
     command: --default-authentication-plugin=mysql_native_password
+    env_file:
+      - .env
     ports:
       # Se usa 3307 para no chocar con XAMPP.
-      - "3307:3306"
+      - "${DB_EXTERNAL_PORT:-3307}:3306"
     environment:
-      MYSQL_DATABASE: escuela_db
-      MYSQL_USER: escuela_user
-      MYSQL_PASSWORD: 123456
-      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
     healthcheck:
       # Espera a que MySQL este realmente disponible antes de depender de el.
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot123456"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${DB_ROOT_PASS}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -44,21 +48,23 @@ services:
       - db_data:/var/lib/mysql
       # Dump inicial de la base del proyecto.
       - ./database/escuela_db_export.sql:/docker-entrypoint-initdb.d/01-escuela_db.sql:ro
-      # Base auxiliar para la configuracion interna de phpMyAdmin.
-      - ./database/phpmyadmin_setup.sql:/docker-entrypoint-initdb.d/02-phpmyadmin.sql:ro
+      # Script parametrizado para crear la base interna de phpMyAdmin sin exponer claves.
+      - ./database/phpmyadmin_setup.sh:/docker-entrypoint-initdb.d/02-phpmyadmin.sh:ro
 
   phpmyadmin:
     # Administrador visual de MySQL disponible en el puerto 8081.
     image: phpmyadmin:5.2-apache
     container_name: escuela_phpmyadmin
+    env_file:
+      - .env
     ports:
-      - "8081:80"
+      - "${PHPMYADMIN_PORT:-8081}:80"
     environment:
       # phpMyAdmin se conecta al servicio db por nombre dentro de la red Docker.
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: root123456
+      PMA_USER: ${PMA_WEB_USER}
+      PMA_PASSWORD: ${PMA_WEB_PASSWORD}
       UPLOAD_LIMIT: 64M
     volumes:
       # Configuracion extra para activar favoritos, recientes y otras funciones internas.

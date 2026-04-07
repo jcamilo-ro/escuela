@@ -45,6 +45,9 @@ Archivos y carpetas principales:
 - readme.txt
   Documentacion tecnica en texto plano.
 
+- .env.example
+  Plantilla de variables de entorno sin credenciales reales.
+
 - api\
   - student.php
     API para estudiantes y matriculas.
@@ -67,8 +70,8 @@ Archivos y carpetas principales:
     Exportacion de la base principal para Docker.
   - materias_setup.sql
     Script base para tablas y materias iniciales.
-  - phpmyadmin_setup.sql
-    Script para crear la base interna de configuracion de phpMyAdmin.
+  - phpmyadmin_setup.sh
+    Script parametrizado para crear la base interna de phpMyAdmin.
 
 - config\
   - phpmyadmin\
@@ -140,9 +143,14 @@ Archivos usados:
 - Dockerfile
 - docker-compose.yml
 - .dockerignore
+- .env.example
 - database\escuela_db_export.sql
-- database\phpmyadmin_setup.sql
+- database\phpmyadmin_setup.sh
 - config\phpmyadmin\config.user.inc.php
+
+Seguridad:
+- El archivo .env real no se sube a GitHub.
+- Solo se publica .env.example como guia.
 
 Servicios:
 - app -> PHP 8.2 + Apache
@@ -162,15 +170,15 @@ Comandos principales:
 Acceso a phpMyAdmin Docker:
 - URL: http://localhost:8081
 - servidor: db
-- usuario: root
-- contrasena: root123456
+- usuario: definido en .env
+- contrasena: definida en .env
 
 Importacion de datos:
 - La base actual fue exportada en
   database\escuela_db_export.sql
 - MySQL la importa automaticamente al crear el volumen por primera vez
 - phpMyAdmin usa una base interna adicional creada con
-  database\phpmyadmin_setup.sql
+  database\phpmyadmin_setup.sh
 
 ============================================================
 8) ENDPOINTS DISPONIBLES
