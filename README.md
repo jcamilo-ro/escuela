@@ -89,6 +89,7 @@ escuela/
 - PHP con soporte PDO
 - MySQL activo
 - navegador web moderno
+- Docker Desktop con WSL 2 habilitado para la ejecucion en contenedores
 
 ## Instalacion local
 
@@ -98,6 +99,62 @@ escuela/
 4. Verifica las credenciales en [connectdb.php](C:\xampp\htdocs\escuela\connectdb.php).
 5. Ejecuta el script [database/materias_setup.sql](C:\xampp\htdocs\escuela\database\materias_setup.sql).
 6. Abre [http://localhost/escuela/](http://localhost/escuela/).
+
+## Ejecucion con Docker
+
+El proyecto tambien puede ejecutarse sin XAMPP usando Docker Compose.
+
+### Archivos agregados para Docker
+
+- [Dockerfile](C:\xampp\htdocs\escuela\Dockerfile)
+- [docker-compose.yml](C:\xampp\htdocs\escuela\docker-compose.yml)
+- [.dockerignore](C:\xampp\htdocs\escuela\.dockerignore)
+- [database/escuela_db_export.sql](C:\xampp\htdocs\escuela\database\escuela_db_export.sql)
+
+### Servicios definidos
+
+- `app`
+  Contenedor con PHP 8.2 y Apache.
+- `db`
+  Contenedor MySQL 8.0 con la base `escuela_db`.
+
+### Puertos usados
+
+- Aplicacion web: `http://localhost:8080`
+- MySQL Docker: `localhost:3307`
+
+### Levantar el proyecto
+
+1. Abre una terminal en `C:\xampp\htdocs\escuela`.
+2. Ejecuta:
+
+```powershell
+docker compose up -d --build
+```
+
+3. Espera a que los servicios terminen de iniciar.
+4. Abre:
+
+[http://localhost:8080](http://localhost:8080)
+
+### Detener los contenedores
+
+```powershell
+docker compose down
+```
+
+### Reiniciar desde cero
+
+Si quieres recrear tambien la base de datos desde el dump:
+
+```powershell
+docker compose down -v
+docker compose up -d --build
+```
+
+### Nota sobre la base actual
+
+La base de datos de XAMPP fue exportada a [database/escuela_db_export.sql](C:\xampp\htdocs\escuela\database\escuela_db_export.sql) para importarse automaticamente la primera vez que el contenedor MySQL se crea.
 
 ## Endpoints principales
 

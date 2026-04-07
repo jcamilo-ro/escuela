@@ -123,7 +123,36 @@ Relacion:
    http://localhost/escuela/
 
 ============================================================
-7) ENDPOINTS DISPONIBLES
+7) EJECUCION CON DOCKER
+============================================================
+El proyecto tambien puede ejecutarse en contenedores Docker.
+
+Archivos usados:
+- Dockerfile
+- docker-compose.yml
+- .dockerignore
+- database\escuela_db_export.sql
+
+Servicios:
+- app -> PHP 8.2 + Apache
+- db  -> MySQL 8.0
+
+Puertos:
+- Aplicacion Docker: http://localhost:8080
+- MySQL Docker: 3307
+
+Comandos principales:
+- docker compose up -d --build
+- docker compose down
+- docker compose down -v
+
+Importacion de datos:
+- La base actual fue exportada en
+  database\escuela_db_export.sql
+- MySQL la importa automaticamente al crear el volumen por primera vez
+
+============================================================
+8) ENDPOINTS DISPONIBLES
 ============================================================
 
 ESTUDIANTES
@@ -141,7 +170,7 @@ MATERIAS
 - POST api/subject.php action=eliminar
 
 ============================================================
-8) ESTANDAR DE COMMITS
+9) ESTANDAR DE COMMITS
 ============================================================
 El proyecto se mantiene con commits en espanol y mensajes claros.
 
@@ -151,9 +180,10 @@ Ejemplos recomendados:
 - correccion: validar limite de 3 materias por estudiante
 
 ============================================================
-9) ESTADO ACTUAL
+10) ESTADO ACTUAL
 ============================================================
 - panel visual migrado a AdminLTE
 - repositorio conectado a GitHub
 - documentacion mejorada
 - estructura mas limpia para trabajo academico
+- configuracion Docker agregada
