@@ -1,27 +1,32 @@
 services:
   app:
+    # Servicio principal de la aplicacion PHP + Apache.
     build:
       context: .
     container_name: escuela_app
     ports:
       - "8080:80"
     environment:
+      # Estas variables alimentan connectdb.php para apuntar al MySQL de Docker.
       DB_HOST: db
       DB_PORT: 3306
       DB_NAME: escuela_db
       DB_USER: escuela_user
       DB_PASS: 123456
     volumes:
+      # Se monta el proyecto local para ver cambios en caliente desde VS Code.
       - ./:/var/www/html
     depends_on:
       db:
         condition: service_healthy
 
   db:
+    # Servicio de base de datos principal del sistema.
     image: mysql:8.0
     container_name: escuela_db
     command: --default-authentication-plugin=mysql_native_password
     ports:
+      # Se usa 3307 para no chocar con XAMPP.
       - "3307:3306"
     environment:
       MYSQL_DATABASE: escuela_db
@@ -29,31 +34,39 @@ services:
       MYSQL_PASSWORD: 123456
       MYSQL_ROOT_PASSWORD: root123456
     healthcheck:
+      # Espera a que MySQL este realmente disponible antes de depender de el.
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot123456"]
       interval: 5s
       timeout: 5s
       retries: 20
     volumes:
+      # Volumen persistente con la base real en ejecucion.
       - db_data:/var/lib/mysql
+      # Dump inicial de la base del proyecto.
       - ./database/escuela_db_export.sql:/docker-entrypoint-initdb.d/01-escuela_db.sql:ro
+      # Base auxiliar para la configuracion interna de phpMyAdmin.
       - ./database/phpmyadmin_setup.sql:/docker-entrypoint-initdb.d/02-phpmyadmin.sql:ro
 
   phpmyadmin:
+    # Administrador visual de MySQL disponible en el puerto 8081.
     image: phpmyadmin:5.2-apache
     container_name: escuela_phpmyadmin
     ports:
       - "8081:80"
     environment:
+      # phpMyAdmin se conecta al servicio db por nombre dentro de la red Docker.
       PMA_HOST: db
       PMA_PORT: 3306
       PMA_USER: root
       PMA_PASSWORD: root123456
       UPLOAD_LIMIT: 64M
     volumes:
+      # Configuracion extra para activar favoritos, recientes y otras funciones internas.
       - ./config/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/conf.d/config.user.inc.php:ro
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
+  # Volumen nombrado donde MySQL conserva los datos entre reinicios.
   db_data:

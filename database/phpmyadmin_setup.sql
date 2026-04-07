@@ -1,7 +1,10 @@
+-- Esta base auxiliar no guarda estudiantes ni materias del proyecto.
+-- Solo existe para que phpMyAdmin almacene su propia configuracion interna.
 CREATE DATABASE IF NOT EXISTS phpmyadmin
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
+-- Usuario tecnico con permisos limitados sobre la base de phpMyAdmin.
 CREATE USER IF NOT EXISTS 'pma'@'%' IDENTIFIED BY 'pma123456';
 GRANT SELECT, INSERT, UPDATE, DELETE ON phpmyadmin.* TO 'pma'@'%';
 

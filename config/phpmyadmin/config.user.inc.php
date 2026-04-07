@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+// phpMyAdmin usa esta base auxiliar para guardar favoritos, recientes
+// y otras preferencias sin mezclar esa informacion con escuela_db.
 $serverIndex = 1;
 
 $cfg['Servers'][$serverIndex]['controlhost'] = 'db';

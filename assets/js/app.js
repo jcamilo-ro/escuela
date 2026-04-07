@@ -26,10 +26,12 @@ let searchTerm = "";
 const studentCodeRegex = /^26\d{3}$/;
 window.__subjectsLoaded = false;
 
+// Utilidad simple para mostrar mensajes temporales dentro de una tabla.
 function setTableMessage(tbody, colspan, message) {
     tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center py-4">${escapeHtml(message)}</td></tr>`;
 }
 
+// Estado vacio mas visual para que la tabla no quede "muerta" cuando no hay registros.
 function setTableEmptyState(tbody, colspan, icon, title, description) {
     tbody.innerHTML = `
         <tr>
@@ -46,6 +48,7 @@ function setTableEmptyState(tbody, colspan, icon, title, description) {
     `;
 }
 
+// Toast reutilizable para feedback rapido de exito, error o advertencia.
 function showToast(message, type = "success") {
     const toast = document.createElement("div");
     toast.className = "toast align-items-center border-0 text-bg-" + type;
@@ -64,6 +67,7 @@ function showToast(message, type = "success") {
     toast.addEventListener("hidden.bs.toast", () => toast.remove());
 }
 
+// Confirmacion generica basada en un modal central y usada con async/await.
 function confirmarAccion(message) {
     confirmText.textContent = message;
     confirmModal.show();
@@ -95,6 +99,7 @@ function confirmarAccion(message) {
     });
 }
 
+// Escapamos HTML antes de insertarlo en plantillas para evitar inyecciones en la vista.
 function escapeHtml(value) {
     return String(value)
         .replaceAll("&", "&amp;")
@@ -104,14 +109,17 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
+// Normaliza el codigo para validar siempre el mismo formato.
 function normalizarCodigo(codigo) {
     return String(codigo || "").trim();
 }
 
+// Presentacion visual del avance de matricula por estudiante.
 function formatEnrollmentCount(count) {
     return `${Number(count)}/${MAX_SUBJECTS_PER_STUDENT}`;
 }
 
+// El color cambia segun el estado: sin materias, en progreso o en limite.
 function getEnrollmentBadgeClass(count) {
     const numericCount = Number(count || 0);
     if (numericCount >= MAX_SUBJECTS_PER_STUDENT) {
@@ -123,12 +131,14 @@ function getEnrollmentBadgeClass(count) {
     return "enrollment-badge--empty";
 }
 
+// Se usan iniciales para darle identidad visual a cada fila sin depender de imagenes.
 function getStudentInitials(student) {
     const first = String(student.first_name || "").trim().charAt(0);
     const last = String(student.last_name || "").trim().charAt(0);
     return (first + last).toUpperCase() || "ST";
 }
 
+// Cuando se llega al limite de materias, bloqueamos el resto de checkboxes.
 function syncSubjectCheckboxLimit() {
     const checkboxes = Array.from(subjectEnrollmentTbody.querySelectorAll('input[name="subject_ids[]"]'));
     const selectedCount = checkboxes.filter((checkbox) => checkbox.checked).length;
@@ -138,6 +148,7 @@ function syncSubjectCheckboxLimit() {
     });
 }
 
+// Wrapper comun para llamadas a la API. Agrega timeout y parseo consistente de JSON.
 async function fetchJson(url, options) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
@@ -174,6 +185,7 @@ async function fetchJson(url, options) {
     return data;
 }
 
+// Carga la tabla de estudiantes desde la API y aplica el filtro de busqueda si existe.
 async function cargarEstudiantes() {
     setTableMessage(studentsTbody, 6, "Cargando...");
 
@@ -197,6 +209,7 @@ async function cargarEstudiantes() {
     }
 }
 
+// Carga la tabla de materias desde la API correspondiente.
 async function cargarMaterias() {
     setTableMessage(subjectsTbody, 4, "Cargando...");
 
@@ -216,10 +229,12 @@ async function cargarMaterias() {
     }
 }
 
+// Refrescamos ambos paneles cuando una operacion afecta el estado global del sistema.
 async function cargarTodo() {
     await Promise.all([cargarEstudiantes(), cargarMaterias()]);
 }
 
+// Pide al backend el siguiente codigo sugerido para no depender de calculos locales.
 async function obtenerSiguienteCodigo() {
     try {
         const data = await fetchJson(`${STUDENT_API}?action=siguiente_codigo`);
@@ -232,6 +247,7 @@ async function obtenerSiguienteCodigo() {
     return "";
 }
 
+// Convierte la respuesta JSON en filas HTML para la tabla de estudiantes.
 function renderTablaEstudiantes(datos) {
     studentsCache = datos;
 
@@ -285,6 +301,7 @@ function renderTablaEstudiantes(datos) {
     `).join("");
 }
 
+// Convierte la lista de materias en una tabla mas visual y resumida.
 function renderTablaMaterias(datos) {
     window.__subjectsLoaded = true;
 
@@ -328,6 +345,7 @@ function renderTablaMaterias(datos) {
     `).join("");
 }
 
+// Prepara el modal de edicion con los datos ya existentes del estudiante.
 function abrirModalEditar(registro) {
     document.getElementById("editId").value = registro.id;
     document.getElementById("editStudentCode").value = registro.codigo_estudiante || "";
@@ -337,11 +355,13 @@ function abrirModalEditar(registro) {
     bootstrap.Modal.getOrCreateInstance(document.getElementById("editModal")).show();
 }
 
+// Solo asigna el ID y abre el modal; la confirmacion real ocurre al enviar el formulario.
 function abrirModalEliminar(id) {
     document.getElementById("deleteId").value = id;
     bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteModal")).show();
 }
 
+// Dibuja la tabla de materias dentro del modal de matricula por estudiante.
 function renderEnrollmentSubjects(subjects, maxMaterias) {
     if (!subjects.length) {
         setTableEmptyState(
@@ -390,6 +410,7 @@ function renderEnrollmentSubjects(subjects, maxMaterias) {
     });
 }
 
+// Abre el modal, consulta al backend y arma la vista editable de matriculas.
 async function abrirModalMatricula(studentId) {
     setTableMessage(subjectEnrollmentTbody, 4, "Cargando...");
     subjectEnrollmentLabel.textContent = "Selecciona hasta 3 materias para el estudiante";
@@ -416,6 +437,7 @@ async function abrirModalMatricula(studentId) {
     }
 }
 
+// Delegamos eventos en el tbody para no registrar listeners por cada fila renderizada.
 studentsTbody.addEventListener("click", (event) => {
     const manageButton = event.target.closest(".js-manage-enrollment");
     if (manageButton) {
@@ -439,6 +461,7 @@ studentsTbody.addEventListener("click", (event) => {
     }
 });
 
+// Un solo listener cubre todos los botones de eliminar materia.
 subjectsTbody.addEventListener("click", (event) => {
     const deleteButton = event.target.closest(".js-delete-subject");
     if (deleteButton) {
@@ -446,6 +469,7 @@ subjectsTbody.addEventListener("click", (event) => {
     }
 });
 
+// La eliminacion de materias pasa primero por una confirmacion y luego por la API.
 async function confirmarEliminacionMateria(subjectId) {
     const ok = await confirmarAccion("Estas seguro de eliminar esta materia?");
     if (!ok) {
@@ -473,6 +497,7 @@ async function confirmarEliminacionMateria(subjectId) {
     showToast(data.message || "No se pudo eliminar la materia", "danger");
 }
 
+// Crear estudiante: valida codigo, envia al backend y refresca la tabla.
 document.getElementById("addForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -503,6 +528,7 @@ document.getElementById("addForm").addEventListener("submit", async (event) => {
     showToast(data.message || "No se pudo crear", "danger");
 });
 
+// Al abrir el modal, sugerimos el siguiente codigo disponible.
 openAddModalBtn.addEventListener("click", async () => {
     const inputCodigo = document.getElementById("addStudentCode");
     const sugerido = await obtenerSiguienteCodigo();
@@ -512,12 +538,14 @@ openAddModalBtn.addEventListener("click", async () => {
 });
 
 if (openAddSubjectModalBtn) {
+    // Resetea el modal para no reutilizar accidentalmente datos anteriores.
     openAddSubjectModalBtn.addEventListener("click", () => {
         document.getElementById("addSubjectForm").reset();
         document.getElementById("addSubjectCredits").value = 3;
     });
 }
 
+// Actualizar estudiante reutiliza el modal y vuelve a validar antes de persistir.
 document.getElementById("editForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const ok = await confirmarAccion("Estas seguro de actualizar este estudiante?");
@@ -552,6 +580,7 @@ document.getElementById("editForm").addEventListener("submit", async (event) => 
     showToast(data.message || "No se pudo actualizar", "danger");
 });
 
+// Eliminar estudiante impacta lista y metricas, por eso recargamos todo.
 document.getElementById("deleteForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -575,6 +604,8 @@ document.getElementById("deleteForm").addEventListener("submit", async (event) =
     showToast(data.message || "No se pudo eliminar", "danger");
 });
 
+// Guardar matriculas es una operacion clave del negocio: el frontend ayuda,
+// pero el backend vuelve a validar el limite de 3 materias.
 document.getElementById("subjectEnrollmentForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -605,6 +636,7 @@ document.getElementById("subjectEnrollmentForm").addEventListener("submit", asyn
     showToast(data.message || "No se pudieron guardar las materias", "danger");
 });
 
+// Crear materia normaliza el codigo en mayusculas para mantener consistencia.
 document.getElementById("addSubjectForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -630,11 +662,13 @@ document.getElementById("addSubjectForm").addEventListener("submit", async (even
     showToast(data.message || "No se pudo crear la materia", "danger");
 });
 
+// Busqueda manual por boton.
 searchButton.addEventListener("click", async () => {
     searchTerm = searchInput.value.trim();
     await cargarEstudiantes();
 });
 
+// Busqueda por Enter para una experiencia mas rapida.
 searchInput.addEventListener("keydown", async (event) => {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -643,12 +677,14 @@ searchInput.addEventListener("keydown", async (event) => {
     }
 });
 
+// Limpia filtro y recarga toda la tabla.
 clearButton.addEventListener("click", async () => {
     searchInput.value = "";
     searchTerm = "";
     await cargarEstudiantes();
 });
 
+// Estos botones del dashboard reutilizan la misma navegacion del sidebar.
 document.querySelectorAll(".js-section-trigger").forEach((button) => {
     button.addEventListener("click", () => {
         const link = document.querySelector(`.js-section-nav[data-section="${button.dataset.section}"]`);
@@ -658,6 +694,7 @@ document.querySelectorAll(".js-section-trigger").forEach((button) => {
     });
 });
 
+// Iniciamos la carga cuando el DOM ya esta listo.
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", cargarTodo);
 } else {

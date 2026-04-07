@@ -3,8 +3,10 @@ require_once __DIR__ . "/../connectdb.php";
 
 header("Content-Type: application/json; charset=UTF-8");
 
+// Se mantiene la misma regla tambien en esta API para cubrir flujos alternos.
 const MAX_SUBJECTS_PER_STUDENT = 3;
 
+// Respuesta uniforme para que el frontend no tenga que adivinar formatos.
 function responseJson($success, $message, $extra = []) {
     echo json_encode(array_merge([
         "success" => $success,
@@ -13,10 +15,12 @@ function responseJson($success, $message, $extra = []) {
     exit;
 }
 
+// Limpieza basica de entradas de texto para evitar espacios sobrantes.
 function normalizarTexto($value) {
     return trim((string)$value);
 }
 
+// Convierte IDs enviados por formulario en un arreglo unico y seguro de enteros.
 function obtenerIdsEstudiantesDesdePost() {
     $studentIds = $_POST["student_ids"] ?? ($_POST["student_ids[]"] ?? []);
 
@@ -35,6 +39,7 @@ function obtenerIdsEstudiantesDesdePost() {
     return array_values($uniqueIds);
 }
 
+// Helper para construir consultas IN con sentencias preparadas.
 function placeholders($values, $prefix) {
     $map = [];
     foreach (array_values($values) as $index => $value) {
@@ -48,6 +53,7 @@ $action = $_GET["action"] ?? $_POST["action"] ?? "";
 try {
     switch ($action) {
         case "listar":
+            // Lista materias con el total de estudiantes matriculados en cada una.
             $sql = "SELECT sub.id,
                            sub.nombre,
                            sub.codigo,
@@ -62,6 +68,7 @@ try {
             break;
 
         case "crear":
+            // Crea una materia nueva y normaliza el codigo en mayusculas.
             $nombre = normalizarTexto($_POST["nombre"] ?? "");
             $codigo = strtoupper(normalizarTexto($_POST["codigo"] ?? ""));
             $creditos = (int)($_POST["creditos"] ?? 0);
@@ -81,6 +88,7 @@ try {
             break;
 
         case "eliminar":
+            // Elimina la materia y, por la FK, tambien se limpian sus relaciones asociadas.
             $subjectId = (int)($_POST["id"] ?? 0);
             if ($subjectId <= 0) {
                 responseJson(false, "Materia invalida");
@@ -97,6 +105,7 @@ try {
             break;
 
         case "estudiantes_matricula":
+            // Conserva el flujo inverso: ver que estudiantes tiene una materia.
             $subjectId = (int)($_GET["subject_id"] ?? 0);
             if ($subjectId <= 0) {
                 responseJson(false, "Materia invalida");
@@ -135,6 +144,7 @@ try {
             break;
 
         case "guardar_matriculas":
+            // Flujo inverso de matricula: actualiza estudiantes de una materia especifica.
             $subjectId = (int)($_POST["subject_id"] ?? 0);
             if ($subjectId <= 0) {
                 responseJson(false, "Materia invalida");

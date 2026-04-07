@@ -3,8 +3,10 @@ require_once __DIR__ . "/../connectdb.php";
 
 header("Content-Type: application/json; charset=UTF-8");
 
+// Regla de negocio central: cada estudiante solo puede tener 3 materias.
 const MAX_SUBJECTS_PER_STUDENT = 3;
 
+// Estandariza todas las respuestas de la API para que el frontend sepa leerlas siempre igual.
 function responseJson($success, $message, $extra = []) {
     echo json_encode(array_merge([
         "success" => $success,
@@ -13,10 +15,12 @@ function responseJson($success, $message, $extra = []) {
     exit;
 }
 
+// El codigo del estudiante sigue el patron 26### por requerimiento del proyecto.
 function validarCodigoEstudiante($codigo) {
     return preg_match('/^26\d{3}$/', $codigo) === 1;
 }
 
+// Genera el siguiente codigo sugerido a partir del mayor codigo registrado actualmente.
 function obtenerSiguienteCodigoEstudiante(PDO $pdo) {
     $sql = "SELECT MAX(CAST(codigo_estudiante AS UNSIGNED))
             FROM student
@@ -35,6 +39,7 @@ function obtenerSiguienteCodigoEstudiante(PDO $pdo) {
     return (string)$siguiente;
 }
 
+// Revisa si un codigo ya existe. En actualizacion permite excluir el mismo registro.
 function codigoDisponible(PDO $pdo, $codigo, $exceptId = 0) {
     $sql = "SELECT COUNT(*) FROM student WHERE codigo_estudiante = :codigo";
     $params = [":codigo" => $codigo];
@@ -49,6 +54,7 @@ function codigoDisponible(PDO $pdo, $codigo, $exceptId = 0) {
     return (int)$stmt->fetchColumn() === 0;
 }
 
+// Normaliza la entrada del formulario para obtener una lista unica de IDs validos.
 function obtenerIdsMateriasDesdePost() {
     $subjectIds = $_POST["subject_ids"] ?? ($_POST["subject_ids[]"] ?? []);
 
@@ -67,6 +73,7 @@ function obtenerIdsMateriasDesdePost() {
     return array_values($uniqueIds);
 }
 
+// Helper para construir consultas IN con placeholders seguros en PDO.
 function placeholders($values, $prefix) {
     $map = [];
     foreach (array_values($values) as $index => $value) {
@@ -80,6 +87,7 @@ $action = $_GET["action"] ?? $_POST["action"] ?? "";
 try {
     switch ($action) {
         case "siguiente_codigo":
+            // Sugiere automaticamente el proximo codigo al abrir el modal de crear estudiante.
             $siguiente = obtenerSiguienteCodigoEstudiante($pdo);
             if ($siguiente === "") {
                 responseJson(false, "No hay mas codigos disponibles en el rango 26###");
@@ -88,6 +96,7 @@ try {
             break;
 
         case "listar":
+            // Lista estudiantes y cuenta cuantas materias tiene cada uno.
             $busca = trim($_GET["busca"] ?? "");
             $sql = "SELECT s.id,
                            s.codigo_estudiante,
@@ -114,6 +123,7 @@ try {
             break;
 
         case "materias_matricula":
+            // Devuelve el detalle del estudiante y las materias para armar el modal de matricula.
             $studentId = (int)($_GET["student_id"] ?? 0);
             if ($studentId <= 0) {
                 responseJson(false, "Estudiante invalido");
@@ -154,6 +164,7 @@ try {
             break;
 
         case "guardar_matriculas":
+            // Reemplaza la matricula completa del estudiante dentro de una transaccion.
             $studentId = (int)($_POST["student_id"] ?? 0);
             if ($studentId <= 0) {
                 responseJson(false, "Estudiante invalido");
@@ -208,6 +219,7 @@ try {
             break;
 
         case "crear":
+            // Crea un estudiante nuevo validando formato y unicidad del codigo.
             $codigoEstudiante = trim($_POST["codigo_estudiante"] ?? "");
             $firstName = trim($_POST["first_name"] ?? "");
             $lastName = trim($_POST["last_name"] ?? "");
@@ -238,6 +250,7 @@ try {
             break;
 
         case "actualizar":
+            // Actualiza un estudiante existente manteniendo la misma validacion del alta.
             $id = (int)($_POST["id"] ?? 0);
             $codigoEstudiante = trim($_POST["codigo_estudiante"] ?? "");
             $firstName = trim($_POST["first_name"] ?? "");
@@ -270,6 +283,7 @@ try {
             break;
 
         case "eliminar":
+            // Eliminar un estudiante tambien limpia sus matriculas por la relacion con cascada.
             $id = (int)($_POST["id"] ?? 0);
 
             if ($id <= 0) {
@@ -279,9 +293,8 @@ try {
             $stmt = $pdo->prepare("DELETE FROM student WHERE id = :id");
             $stmt->execute([":id" => $id]);
 
-            // Reajusta el siguiente AUTO_INCREMENT a MAX(id)+1.
-            // Si se elimina el ultimo registro, reutiliza ese ID en el proximo insert.
-            // Si hay IDs mayores existentes, no modifica ninguno y continua desde el maximo.
+            // Reajustamos AUTO_INCREMENT para que en este proyecto academico los IDs
+            // no dejen huecos innecesarios cuando se elimina el ultimo registro.
             $nextId = (int)$pdo->query("SELECT COALESCE(MAX(id), 0) + 1 FROM student")->fetchColumn();
             $pdo->exec("ALTER TABLE student AUTO_INCREMENT = $nextId");
 

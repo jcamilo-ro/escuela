@@ -1,4 +1,6 @@
 <?php
+// Estas cabeceras desactivan cache para que durante el desarrollo el navegador no muestre
+// una version antigua del panel despues de hacer cambios en PHP, CSS o JavaScript.
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -12,6 +14,8 @@ $enrollmentCount = 0;
 try {
     require_once __DIR__ . "/connectdb.php";
 
+    // Esta consulta carga el catalogo inicial de materias junto con el conteo de estudiantes
+    // matriculados por cada una. Se hace en servidor para que el panel ya llegue con datos.
     $subjectSql = "SELECT sub.id,
                           sub.nombre,
                           sub.codigo,
@@ -26,6 +30,8 @@ try {
     $subjectCount = (int)$pdo->query("SELECT COUNT(*) FROM subject")->fetchColumn();
     $enrollmentCount = (int)$pdo->query("SELECT COUNT(*) FROM student_subject")->fetchColumn();
 } catch (Throwable $e) {
+    // Si algo falla al cargar datos base, la interfaz sigue renderizando y muestra el error
+    // en la seccion afectada en lugar de romper toda la pagina.
     $subjectsError = "No se pudieron cargar las materias";
 }
 ?>
@@ -137,6 +143,8 @@ try {
         <div class="app-content">
             <div class="container-fluid">
                 <section id="dashboard" class="mb-4 app-panel-section" data-section-title="Dashboard">
+                    <!-- El dashboard resume el estado del sistema y sirve como entrada visual -->
+                    <!-- a los modulos principales del panel academico. -->
                     <div class="hero-panel mb-4">
                         <div class="hero-panel__content">
                             <span class="hero-panel__eyebrow">Panel principal</span>
@@ -213,6 +221,7 @@ try {
                 </section>
 
                 <section id="panel-estudiantes" class="mb-4 app-panel-section d-none" data-section-title="Estudiantes">
+                    <!-- Esta tabla se rellena desde app.js consumiendo la API de estudiantes. -->
                     <div class="card card-outline card-primary shadow-sm">
                         <div class="card-header border-0">
                             <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -267,6 +276,9 @@ try {
                 </section>
 
                 <section id="panel-materias" class="mb-4 app-panel-section d-none" data-section-title="Materias">
+                    <!-- En materias dejamos una vista administrativa para crear y eliminar. -->
+                    <!-- La matricula se gestiona desde estudiantes para centrar el flujo -->
+                    <!-- en el alumno y no en cada materia. -->
                     <div class="card card-outline card-success shadow-sm">
                         <div class="card-header border-0">
                             <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -341,6 +353,7 @@ try {
 </div>
 
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal para crear estudiantes sin salir del panel principal. -->
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="addForm">
@@ -377,6 +390,7 @@ try {
 </div>
 
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal de edicion que reutiliza el mismo flujo del registro. -->
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="editForm">
@@ -413,6 +427,7 @@ try {
 </div>
 
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <!-- Confirmacion separada para evitar borrados accidentales. -->
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="deleteForm">
@@ -434,6 +449,7 @@ try {
 </div>
 
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal generico de confirmacion para acciones sensibles. -->
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -452,6 +468,7 @@ try {
 </div>
 
 <div class="modal fade" id="addSubjectModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal para crear materias nuevas dentro del catalogo. -->
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="addSubjectForm">
@@ -483,6 +500,7 @@ try {
 </div>
 
 <div class="modal fade" id="subjectEnrollmentModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal principal de matricula por estudiante con limite de 3 materias. -->
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <form id="subjectEnrollmentForm">
@@ -543,6 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentSectionLabel = document.getElementById("currentSectionLabel");
 
     if (sidebarWrapper && window.OverlayScrollbarsGlobal?.OverlayScrollbars && !isMobile) {
+        // Mejora el scroll del sidebar en escritorio sin alterar el comportamiento movil.
         window.OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
             scrollbars: {
                 theme: "os-theme-light",
@@ -553,6 +572,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const activateSection = (sectionId) => {
+        // En lugar de navegar a paginas distintas, mostramos y ocultamos secciones
+        // para mantener un dashboard de una sola vista.
         sections.forEach((section) => {
             section.classList.toggle("d-none", section.id !== sectionId);
         });
@@ -583,6 +604,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!isMobile) {
+        // En escritorio priorizamos claridad dejando el menu visible por defecto.
         body.classList.remove("sidebar-collapse");
     }
 });

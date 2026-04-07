@@ -1,4 +1,5 @@
 body {
+    /* Fondo con capas suaves para que el panel no se vea plano ni generico. */
     background:
         radial-gradient(circle at top left, rgba(13, 110, 253, 0.10), transparent 32%),
         radial-gradient(circle at bottom right, rgba(25, 135, 84, 0.12), transparent 28%),
@@ -7,12 +8,14 @@ body {
 }
 
 .app-header {
+    /* Cabecera semitransparente para dar sensacion de panel moderno. */
     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
     backdrop-filter: blur(12px);
     background: rgba(255, 255, 255, 0.78) !important;
 }
 
 .app-sidebar {
+    /* Sidebar con gradiente propio para diferenciar la identidad visual del proyecto. */
     position: relative;
     transition: width 0.2s ease, transform 0.2s ease;
     background:
@@ -41,6 +44,7 @@ body {
 }
 
 .hero-panel {
+    /* Bloque principal del dashboard: resume el sistema y dirige al usuario. */
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.9fr);
     gap: 1.25rem;
@@ -125,6 +129,7 @@ body {
 }
 
 .small-box {
+    /* Tarjetas resumen de metricas principales. */
     border-radius: 1rem;
     overflow: hidden;
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
@@ -195,6 +200,7 @@ body {
 }
 
 .app-table thead th {
+    /* Encabezados con estilo administrativo claro y consistente. */
     border-bottom-width: 1px;
     letter-spacing: 0.02em;
     font-size: 0.78rem;
@@ -230,6 +236,7 @@ body {
 
 .person-cell,
 .subject-cell {
+    /* Celdas compuestas: icono/avatar + informacion secundaria. */
     display: flex;
     align-items: center;
     gap: 0.85rem;
@@ -272,6 +279,7 @@ body {
 .email-pill,
 .subject-count-badge,
 .enrollment-badge {
+    /* Badges reutilizables para resumir informacion sin cargar la tabla con texto. */
     display: inline-flex;
     align-items: center;
     gap: 0.2rem;
@@ -336,6 +344,7 @@ body {
 }
 
 .empty-state {
+    /* Estado vacio diseñado para que la ausencia de datos se vea intencional. */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -369,6 +378,7 @@ body {
 }
 
 .modal-content {
+    /* Modales con presencia visual propia y sin el estilo basico por defecto. */
     border: 0;
     border-radius: 1rem;
     box-shadow: 0 24px 48px rgba(15, 23, 42, 0.16);
@@ -390,6 +400,7 @@ body {
 }
 
 .app-panel-section {
+    /* Animacion leve al cambiar entre secciones del dashboard. */
     animation: sectionFade 0.2s ease;
 }
 
